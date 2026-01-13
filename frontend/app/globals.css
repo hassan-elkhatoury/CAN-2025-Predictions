@@ -1,0 +1,424 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   ROOT VARIABLES
+============================================ */
+:root {
+  --caf-green: #0f766e;
+  --caf-green-light: #14b8a6;
+  --caf-gold: #facc15;
+  --caf-gold-dark: #ca8a04;
+  --dark-900: #0a0a0a;
+  --dark-800: #111827;
+  --dark-700: #1f2937;
+  --dark-600: #374151;
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+}
+
+/* ============================================
+   BASE STYLES
+============================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-dark-900 text-gray-100 font-sans antialiased;
+  min-height: 100vh;
+}
+
+/* ============================================
+   TYPOGRAPHY
+============================================ */
+h1, h2, h3, h4, h5, h6 {
+  @apply font-display font-semibold tracking-tight;
+}
+
+.stat-number {
+  @apply font-mono font-semibold tabular-nums;
+}
+
+/* ============================================
+   CUSTOM SCROLLBAR
+============================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-white/20;
+}
+
+/* ============================================
+   GLASS MORPHISM CARDS
+============================================ */
+.card {
+  @apply bg-dark-800/80 border border-white/5 rounded-2xl;
+  backdrop-filter: blur(8px);
+}
+
+.card-hover {
+  @apply transition-all duration-300 ease-out;
+}
+
+.card-hover:hover {
+  @apply border-white/10 shadow-lg;
+  transform: translateY(-2px);
+}
+
+.card-surface {
+  @apply bg-dark-800 border border-white/5 rounded-xl;
+}
+
+.card-elevated {
+  @apply bg-dark-700/50 border border-white/5 rounded-xl;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   BUTTONS
+============================================ */
+.btn {
+  @apply inline-flex items-center justify-center gap-2 font-medium rounded-xl transition-all duration-200;
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-900;
+}
+
+.btn-primary {
+  @apply btn px-5 py-2.5 bg-caf-green text-white;
+  @apply hover:bg-caf-green-light focus:ring-caf-green;
+}
+
+.btn-secondary {
+  @apply btn px-5 py-2.5 bg-dark-700 text-white border border-white/10;
+  @apply hover:bg-dark-600 hover:border-white/20 focus:ring-white/20;
+}
+
+.btn-gold {
+  @apply btn px-5 py-2.5 bg-caf-gold text-dark-900 font-semibold;
+  @apply hover:bg-yellow-400 focus:ring-caf-gold;
+}
+
+.btn-ghost {
+  @apply btn px-4 py-2 text-gray-400;
+  @apply hover:text-white hover:bg-white/5;
+}
+
+.btn-icon {
+  @apply btn p-2.5 bg-dark-700 text-gray-400 border border-white/10;
+  @apply hover:text-white hover:bg-dark-600;
+}
+
+/* ============================================
+   FORM ELEMENTS
+============================================ */
+.input {
+  @apply w-full px-4 py-2.5 bg-dark-800 border border-white/10 rounded-xl;
+  @apply text-white placeholder-gray-500;
+  @apply focus:outline-none focus:border-caf-green focus:ring-1 focus:ring-caf-green;
+  @apply transition-colors duration-200;
+}
+
+.slider {
+  @apply w-full h-2 bg-dark-700 rounded-full appearance-none cursor-pointer;
+}
+
+.slider::-webkit-slider-thumb {
+  @apply appearance-none w-4 h-4 bg-caf-green rounded-full cursor-pointer;
+  @apply hover:bg-caf-green-light transition-colors;
+}
+
+/* ============================================
+   PROGRESS BARS
+============================================ */
+.progress-track {
+  @apply h-2 bg-dark-700 rounded-full overflow-hidden;
+}
+
+.progress-fill {
+  @apply h-full rounded-full transition-all duration-700 ease-out;
+}
+
+.progress-fill-green {
+  background: linear-gradient(90deg, var(--caf-green), var(--caf-green-light));
+}
+
+.progress-fill-gold {
+  background: linear-gradient(90deg, var(--caf-gold-dark), var(--caf-gold));
+}
+
+/* ============================================
+   BADGES
+============================================ */
+.badge {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium;
+}
+
+.badge-green {
+  @apply badge bg-caf-green/15 text-caf-green-light;
+}
+
+.badge-gold {
+  @apply badge bg-caf-gold/15 text-caf-gold;
+}
+
+.badge-gray {
+  @apply badge bg-white/5 text-gray-400;
+}
+
+.badge-red {
+  @apply badge bg-red-500/15 text-red-400;
+}
+
+/* ============================================
+   RANK BADGES
+============================================ */
+.rank-badge {
+  @apply inline-flex items-center justify-center w-8 h-8 rounded-lg font-mono font-semibold text-sm;
+}
+
+.rank-1 {
+  @apply rank-badge bg-gradient-to-br from-yellow-400 to-yellow-600 text-dark-900;
+}
+
+.rank-2 {
+  @apply rank-badge bg-gradient-to-br from-gray-300 to-gray-500 text-dark-900;
+}
+
+.rank-3 {
+  @apply rank-badge bg-gradient-to-br from-amber-600 to-amber-800 text-white;
+}
+
+.rank-default {
+  @apply rank-badge bg-dark-700 text-gray-400;
+}
+
+/* ============================================
+   FLAG CONTAINER
+============================================ */
+.flag-container {
+  @apply relative overflow-hidden rounded-md;
+  aspect-ratio: 4/3;
+}
+
+.flag-container img {
+  @apply w-full h-full object-cover;
+}
+
+.flag-sm {
+  @apply w-8;
+}
+
+.flag-md {
+  @apply w-12;
+}
+
+.flag-lg {
+  @apply w-16;
+}
+
+.flag-xl {
+  @apply w-24;
+}
+
+/* ============================================
+   DROP ZONES (Drag & Drop)
+============================================ */
+.drop-zone {
+  @apply border-2 border-dashed border-white/10 rounded-2xl;
+  @apply transition-all duration-200;
+}
+
+.drop-zone-active {
+  @apply border-caf-green bg-caf-green/5;
+}
+
+.drop-zone-hover {
+  @apply border-caf-green/50 bg-caf-green/5;
+}
+
+/* ============================================
+   MATCH CARDS
+============================================ */
+.match-card {
+  @apply card p-4 transition-all duration-200;
+}
+
+.match-card-winner {
+  @apply bg-caf-green/10 border-caf-green/30;
+}
+
+/* ============================================
+   TOOLTIPS
+============================================ */
+.tooltip {
+  @apply absolute z-50 px-3 py-2 bg-dark-700 border border-white/10 rounded-lg shadow-xl;
+  @apply text-sm text-white whitespace-nowrap;
+  @apply opacity-0 invisible transition-all duration-200;
+}
+
+.tooltip-trigger:hover .tooltip {
+  @apply opacity-100 visible;
+}
+
+/* ============================================
+   ANIMATIONS
+============================================ */
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* ============================================
+   SECTION HEADERS
+============================================ */
+.section-header {
+  @apply flex items-center gap-3 mb-6;
+}
+
+.section-icon {
+  @apply flex items-center justify-center w-10 h-10 rounded-xl bg-white/5;
+}
+
+.section-title {
+  @apply text-xl font-display font-semibold text-white;
+}
+
+/* ============================================
+   STAT CARDS
+============================================ */
+.stat-card {
+  @apply card p-5 text-center;
+}
+
+.stat-card-value {
+  @apply text-3xl font-mono font-bold text-white mb-1;
+}
+
+.stat-card-label {
+  @apply text-sm text-gray-400;
+}
+
+/* ============================================
+   CHARTS
+============================================ */
+.chart-container {
+  @apply card p-6;
+}
+
+.chart-tooltip {
+  @apply bg-dark-800 border border-white/10 rounded-lg p-3 shadow-xl;
+}
+
+/* ============================================
+   EMPTY STATES
+============================================ */
+.empty-state {
+  @apply card p-12 text-center;
+}
+
+.empty-state-icon {
+  @apply w-16 h-16 mx-auto mb-4 text-gray-600;
+}
+
+.empty-state-title {
+  @apply text-lg font-medium text-gray-300 mb-2;
+}
+
+.empty-state-description {
+  @apply text-sm text-gray-500 max-w-sm mx-auto;
+}
+
+/* ============================================
+   PAGE LAYOUTS
+============================================ */
+.page-container {
+  @apply min-h-screen p-6 lg:p-8;
+}
+
+.page-header {
+  @apply mb-8;
+}
+
+.page-title {
+  @apply text-2xl lg:text-3xl font-display font-bold text-white mb-2;
+}
+
+.page-description {
+  @apply text-gray-400 max-w-2xl;
+}
+
+/* ============================================
+   GRID LAYOUTS
+============================================ */
+.grid-stats {
+  @apply grid grid-cols-2 md:grid-cols-4 gap-4;
+}
+
+.grid-teams {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4;
+}
+
+.grid-matches {
+  @apply grid grid-cols-1 lg:grid-cols-2 gap-4;
+}
+
+/* ============================================
+   RESPONSIVE UTILITIES
+============================================ */
+@media (max-width: 1024px) {
+  .page-container {
+    @apply pt-20;
+  }
+}
+
+/* ============================================
+   SELECTION
+============================================ */
+::selection {
+  @apply bg-caf-green/30 text-white;
+}
