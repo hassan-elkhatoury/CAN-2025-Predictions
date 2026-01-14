@@ -14,16 +14,16 @@ def train():
     print("Loading dataset...")
     df = pd.read_csv(f'{PROCESSED_PATH}/final_dataset_for_modeling.csv')
     
-    # Split Features and Target
+    # Séparer les fonctionnalités et la cible
     X = df.drop(['result', 'match_id', 'date', 'team1', 'team2'], axis=1)
     y = df['result']
     
-    # Split
+    # Division
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, stratify=y, random_state=42
     )
     
-    # Preprocessing
+    # Pré-traitement
     print("Preprocessing data...")
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
@@ -31,7 +31,7 @@ def train():
     label_encoder = LabelEncoder()
     y_train_encoded = label_encoder.fit_transform(y_train)
     
-    # Optimization (RandomizedSearchCV)
+    # Optimisation (RandomizedSearchCV)
     print("Optimizing Random Forest...")
     rf = RandomForestClassifier(class_weight='balanced', random_state=42, n_jobs=-1)
     
@@ -48,13 +48,13 @@ def train():
     best_model = search.best_estimator_
     print(f"Best Score: {search.best_score_:.4f}")
     
-    # Saving Artifacts
+    # Sauvegarde des artefacts
     print("Saving models...")
     joblib.dump(best_model, f'{MODELS_PATH}/rf_model.joblib')
     joblib.dump(scaler, f'{MODELS_PATH}/scaler.joblib')
     joblib.dump(label_encoder, f'{MODELS_PATH}/label_encoder.joblib')
     
-    # Save feature names for inference later
+    # Sauvegarder les noms des fonctionnalités pour l'inférence plus tard
     joblib.dump(X.columns.tolist(), f'{MODELS_PATH}/feature_names.joblib')
     
     print("✅ Training complete. Models saved in /models")

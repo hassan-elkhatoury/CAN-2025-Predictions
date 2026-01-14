@@ -4,15 +4,15 @@ from datetime import datetime
 import re
 import os
 
-# Create directories if they don't exist
+# Créer des répertoires s'ils n'existent pas
 os.makedirs('processed_data', exist_ok=True)
 
-# Configuration for paths
+# Configuration des chemins
 RAW_PATH = 'raw_data'
 PROCESSED_PATH = 'processed_data'
 
 def normalize_team_name(name):
-    """Normalizes team names: strip, title case"""
+    """Normalise les noms d'équipes: strip, title case"""
     if pd.isna(name):
         return name
     return name.strip().title()
@@ -21,19 +21,19 @@ def clean_african_football():
     print("Cleaning: African National Football...")
     df = pd.read_csv(f'{RAW_PATH}/African national football from 2010-2024.csv')
     
-    # Date conversion
+    # Conversion de la date
     df['date'] = pd.to_datetime(df['date'], format='%m/%d/%Y')
     df['year'] = df['date'].dt.year
     df['month'] = df['date'].dt.month
     
-    # Normalize names
+    # Normalisation des noms
     df['home_team'] = df['home_team'].apply(normalize_team_name)
     df['away_team'] = df['away_team'].apply(normalize_team_name)
     
-    # Drop matches without scores
+    # Suppression des matchs sans score
     df = df.dropna(subset=['home_score', 'away_score'])
     
-    # Create result column
+    # Création de la colonne résultat
     def get_result(row):
         if row['home_score'] > row['away_score']: return 'W'
         elif row['home_score'] < row['away_score']: return 'L'
@@ -47,7 +47,7 @@ def clean_can_matches():
     df = pd.read_csv(f'{RAW_PATH}/Africa Cup of Nations Matches.csv')
     df.columns = df.columns.str.strip()
     
-    # Date parsing
+    # Analyse de la date
     def parse_can_date(date_str):
         if pd.isna(date_str): return None
         try: return pd.to_datetime(date_str, format='%d-%b-%y')
@@ -56,15 +56,15 @@ def clean_can_matches():
     df['Date'] = df['Date'].apply(parse_can_date)
     df['year'] = df['Year']
     
-    # Normalize names
+    # Normalisation des noms
     df['HomeTeam'] = df['HomeTeam'].apply(normalize_team_name)
     df['AwayTeam'] = df['AwayTeam'].apply(normalize_team_name)
     
-    # Remove penalty wins from result logic (optional based on notebook)
+    # Suppression des victoires aux tirs au but de la logique de résultat (optionnel selon le notebook)
     df['is_penalty_shootout'] = df['SpecialWinConditions'].fillna('').str.contains('win on penalties|win after penalties', case=False, na=False)
     df = df[~df['is_penalty_shootout']].copy()
     
-    # Dropna and create result
+    # Dropna et création du résultat
     df = df.dropna(subset=['HomeTeamGoals', 'AwayTeamGoals'])
     
     def get_can_result(row):
@@ -74,7 +74,7 @@ def clean_can_matches():
         
     df['result'] = df.apply(get_can_result, axis=1)
     
-    # Rename columns
+    # Renommage des colonnes
     df = df.rename(columns={
         'HomeTeam': 'home_team', 'AwayTeam': 'away_team',
         'HomeTeamGoals': 'home_score', 'AwayTeamGoals': 'away_score',
@@ -87,11 +87,11 @@ def clean_fifa_ranking():
     df = pd.read_csv(f'{RAW_PATH}/fifa_ranking-2024-06-20.csv')
     df['rank_date'] = pd.to_datetime(df['rank_date'])
     
-    # Filter Africa
+    # Filtrer l'Afrique
     df_africa = df[df['confederation'] == 'CAF'].copy()
     df_africa['country_full'] = df_africa['country_full'].apply(normalize_team_name)
     
-    # Keep latest
+    # Garder le dernier
     df_africa = df_africa.sort_values('rank_date', ascending=False)
     df_latest = df_africa.groupby('country_full').first().reset_index()
     
@@ -108,7 +108,7 @@ def clean_team_stats():
         
     df['Team'] = df['Team'].apply(clean_name)
     
-    # Convert GD
+    # Convertir GD
     def convert_gd(gd_str):
         if pd.isna(gd_str): return 0
         gd_str = str(gd_str).replace('+', '').replace('−', '-').replace('–', '-')
@@ -118,7 +118,7 @@ def clean_team_stats():
     df['GD'] = df['GD'].apply(convert_gd)
     df['win_rate'] = df['W'] / df['Pld']
     
-    # Rename
+    # Renommer
     df = df.rename(columns={'Team': 'team', 'Pld': 'games_played', 'GD': 'goal_difference'})
     df.to_csv(f'{PROCESSED_PATH}/cleaned_team_statistics.csv', index=False)
 

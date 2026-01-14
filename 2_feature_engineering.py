@@ -65,25 +65,25 @@ def main():
     df_african['date'] = pd.to_datetime(df_african['date'])
     df_can['Date'] = pd.to_datetime(df_can['Date'])
     
-    # Merge Logic (simplified from notebook)
+    # Logique de fusion (simplifiée du notebook)
     df_base = df_african.copy()
-    # (Optional: Add unique CAN matches not in African Football DB here - skipped for brevity, 
-    # assumes df_african is the master list)
+    # (Optionnel : Ajouter des matchs CAN uniques non présents dans la base de données African Football ici - ignoré pour la concision,
+    # suppose que df_african est la liste principale)
     
     df_base = df_base.sort_values('date').reset_index(drop=True)
     
-    # Basic Features
+    # Fonctionnalités de base
     df_base['match_id'] = range(1, len(df_base) + 1)
     df_base['team1'] = df_base['home_team']
     df_base['team2'] = df_base['away_team']
     
-    # FIFA Ranking
+    # Classement FIFA
     fifa_dict = dict(zip(df_fifa['country_full'], df_fifa['rank']))
     df_base['team1_fifa_rank'] = df_base['team1'].map(lambda x: fifa_dict.get(x, 100))
     df_base['team2_fifa_rank'] = df_base['team2'].map(lambda x: fifa_dict.get(x, 100))
     df_base['fifa_rank_diff'] = df_base['team1_fifa_rank'] - df_base['team2_fifa_rank']
     
-    # Last 5 Matches
+    # 5 derniers matchs
     print("Calculating Last 5 Matches stats...")
     t1_stats = calculate_last5_stats(df_base, 'team1', 'date')
     t2_stats = calculate_last5_stats(df_base, 'team2', 'date')
@@ -93,7 +93,7 @@ def main():
     df_base['team1_last5_goal_diff'] = df_base.index.map(lambda i: t1_stats[i]['goal_diff'])
     df_base['team2_last5_goal_diff'] = df_base.index.map(lambda i: t2_stats[i]['goal_diff'])
     
-    # CAN Stats & Titles
+    # Statistiques CAN et Titres
     can_win_dict = dict(zip(df_team_stats['team'], df_team_stats['win_rate']))
     titles_dict = dict(zip(df_champions['team'], df_champions['can_titles']))
     
@@ -102,13 +102,13 @@ def main():
     df_base['team1_can_titles'] = df_base['team1'].map(lambda x: titles_dict.get(x, 0))
     df_base['team2_can_titles'] = df_base['team2'].map(lambda x: titles_dict.get(x, 0))
     
-    # H2H
+    # Face-à-Face (H2H)
     print("Calculating Head-to-Head stats...")
     h2h_data = calculate_h2h(df_base)
     df_base['h2h_total_matches'] = [x['total'] for x in h2h_data]
     df_base['h2h_team1_win_rate'] = [x['win_rate'] for x in h2h_data]
     
-    # Host & Context
+    # Hôte & Contexte
     CAN_HOSTS = {2010:['Angola'], 2012:['Equatorial Guinea','Gabon'], 2013:['South Africa'],
                  2015:['Equatorial Guinea'], 2017:['Gabon'], 2019:['Egypt'],
                  2022:['Cameroon'], 2024:['Ivory Coast']}
@@ -120,7 +120,7 @@ def main():
     df_base['team1_is_host'] = df_base.apply(lambda x: 1 if is_host(x['team1'], x['year']) else 0, axis=1)
     df_base['team2_is_host'] = df_base.apply(lambda x: 1 if is_host(x['team2'], x['year']) else 0, axis=1)
     
-    # Stage (Group vs Knockout/Finals)
+    # Étape (Groupe vs Éliminatoire / Finales)
     if 'tournament' in df_base.columns:
         is_can = df_base['tournament'].str.contains('African Cup Of Nations|CAN', case=False, na=False)
         is_qualif = df_base['tournament'].str.contains('Qualif', case=False, na=False)
@@ -128,17 +128,17 @@ def main():
     else:
         df_base['stage_group'] = 0
 
-    # Days since last match (Simplified for speed)
+    # Jours depuis le dernier match (Simplifié pour la vitesse)
     df_base['days_since_last_match_team1'] = 7 # Default
     df_base['days_since_last_match_team2'] = 7 # Default
     
-    # Composite Features
+    # Fonctionnalités composites
     df_base['form_momentum_diff'] = df_base['team1_last5_goal_diff'] - df_base['team2_last5_goal_diff']
     df_base['can_performance_diff'] = df_base['team1_can_win_rate'] - df_base['team2_can_win_rate']
     df_base['h2h_dominance'] = df_base['h2h_team1_win_rate'] - 0.5
     df_base['titles_advantage'] = df_base['team1_can_titles'] - df_base['team2_can_titles']
     
-    # Final Selection
+    # Sélection finale
     final_cols = [
         'match_id', 'date', 'team1', 'team2', 'fifa_rank_diff', 
         'team1_last5_points', 'team2_last5_points', 'team1_last5_goal_diff', 'team2_last5_goal_diff',

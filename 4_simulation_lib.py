@@ -13,13 +13,13 @@ try:
     scaler = joblib.load(f'{MODELS_PATH}/scaler.joblib')
     label_encoder = joblib.load(f'{MODELS_PATH}/label_encoder.joblib')
     feature_names = joblib.load(f'{MODELS_PATH}/feature_names.joblib')
-    # Load historical data for dynamic feature calculation
+    # Charger les données historiques pour le calcul dynamique des fonctionnalités
     history_df = pd.read_csv(f'{PROCESSED_PATH}/final_dataset_for_modeling.csv')
     history_df['date'] = pd.to_datetime(history_df['date'])
 except Exception as e:
     print(f"⚠️ Warning: Could not load models. Make sure you ran scripts 1-3. Error: {e}")
 
-# Static Data for CAN 2025
+# Données statiques pour la CAN 2025
 FIFA_RANKING = {
     'Maroc': 13, 'Sénégal': 17, 'Égypte': 33, "Côte d'Ivoire": 39,
     'Nigeria': 44, 'Tunisie': 47, 'Algérie': 48, 'Cameroun': 49,
@@ -49,11 +49,11 @@ def get_mapped_name(team):
     return TEAM_NAME_MAPPING.get(team, team)
 
 def get_live_features(team1, team2):
-    """Calculates features for two teams based on history + static data"""
+    """Calcule les fonctionnalités pour deux équipes basées sur l'histoire + données statiques"""
     t1_map = get_mapped_name(team1)
     t2_map = get_mapped_name(team2)
     
-    # 1. Recent Form (Last 5)
+    # 1. Forme récente (5 derniers)
     def get_last5(t_name):
         matches = history_df[
             (history_df['team1'] == t_name) | (history_df['team2'] == t_name)
@@ -86,11 +86,11 @@ def get_live_features(team1, team2):
     else:
         h2h_rate = 0.33
 
-    # 3. CAN Win Rate (Approximation from static history)
+    # 3. Taux de victoire CAN (Approximation de l'histoire statique)
     def get_can_rate(t_name):
         return 0.4 + (CAN_TITLES.get(team1, 0) * 0.05) # Simplified logic
 
-    # Build Dict
+    # Construire le dictionnaire
     features = {
         'fifa_rank_diff': FIFA_RANKING.get(team1, 100) - FIFA_RANKING.get(team2, 100),
         'team1_last5_points': p1, 'team2_last5_points': p2,
@@ -110,20 +110,20 @@ def get_live_features(team1, team2):
         'titles_advantage': CAN_TITLES.get(team1, 0) - CAN_TITLES.get(team2, 0)
     }
     
-    # Ensure correct order
+    # Assurer le bon ordre
     return pd.DataFrame([features])[feature_names]
 
 def predict_match(team1, team2):
-    """Predicts winner between two teams"""
+    """Prédit le vainqueur entre deux équipes"""
     X = get_live_features(team1, team2)
     X_scaled = scaler.transform(X)
     
-    # Probabilities
+    # Probabilités
     probs = model.predict_proba(X_scaled)[0]
     classes = label_encoder.classes_
     prob_dict = dict(zip(classes, probs))
     
-    # Prediction
+    # Prédiction
     pred_idx = np.argmax(probs)
     result = classes[pred_idx]
     
@@ -132,7 +132,7 @@ def predict_match(team1, team2):
     else: return 'Draw', prob_dict
 
 def simulate_tournament():
-    """Simulates the 2025 Bracket defined in the notebook"""
+    """Simule le tableau 2025 défini dans le notebook"""
     bracket_16 = [
         ('Sénégal', 'Soudan'), ('Mali', 'Tunisie'),
         ('Maroc', 'Tanzanie'), ('Afrique du Sud', 'Cameroun'),
@@ -146,7 +146,7 @@ def simulate_tournament():
     print("--- Round of 16 ---")
     for t1, t2 in bracket_16:
         winner, _ = predict_match(t1, t2)
-        # Force winner if Draw (simple logic for knockout)
+        # Forcer le vainqueur si match nul (logique simple pour les éliminatoires)
         if winner == 'Draw': winner = t1 if FIFA_RANKING.get(t1, 100) < FIFA_RANKING.get(t2, 100) else t2
         quarter_finalists.append(winner)
         results[f"{t1} vs {t2}"] = winner
