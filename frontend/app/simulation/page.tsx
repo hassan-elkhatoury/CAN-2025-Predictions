@@ -168,7 +168,7 @@ export default function SimulationPage() {
     // Simulate Round of 16
     const ro16Results: Match[] = []
     for (const match of roundOf16Matches) {
-      const result = predictMatch(match.team1, match.team2)
+      const result = await predictMatch(match.team1, match.team2)
       ro16Results.push({
         ...match,
         winner: result.winner === 'draw' ? match.team1 : result.winner,
@@ -190,7 +190,7 @@ export default function SimulationPage() {
 
     const qfResults: Match[] = []
     for (const match of qfMatches) {
-      const result = predictMatch(match.team1, match.team2)
+      const result = await predictMatch(match.team1, match.team2)
       qfResults.push({
         ...match,
         winner: result.winner === 'draw' ? match.team1 : result.winner,
@@ -211,7 +211,7 @@ export default function SimulationPage() {
     const sfResults: Match[] = []
     const sfLosers: string[] = []
     for (const match of sfMatches) {
-      const result = predictMatch(match.team1, match.team2)
+      const result = await predictMatch(match.team1, match.team2)
       const winner = result.winner === 'draw' ? match.team1 : result.winner
       const loser = winner === match.team1 ? match.team2 : match.team1
       sfLosers.push(loser)
@@ -228,7 +228,7 @@ export default function SimulationPage() {
     // Third Place Match
     await new Promise(r => setTimeout(r, 400))
     const thirdPlaceMatch: Match = { id: 15, team1: sfLosers[0], team2: sfLosers[1] }
-    const tpResult = predictMatch(thirdPlaceMatch.team1, thirdPlaceMatch.team2)
+    const tpResult = await predictMatch(thirdPlaceMatch.team1, thirdPlaceMatch.team2)
     const thirdPlace: Match = {
       ...thirdPlaceMatch,
       winner: tpResult.winner === 'draw' ? thirdPlaceMatch.team1 : tpResult.winner,
@@ -240,7 +240,7 @@ export default function SimulationPage() {
     // Final
     await new Promise(r => setTimeout(r, 400))
     const finalMatch: Match = { id: 16, team1: sfResults[0].winner!, team2: sfResults[1].winner! }
-    const finalResult = predictMatch(finalMatch.team1, finalMatch.team2)
+    const finalResult = await predictMatch(finalMatch.team1, finalMatch.team2)
     const final: Match = {
       ...finalMatch,
       winner: finalResult.winner === 'draw' ? finalMatch.team1 : finalResult.winner,

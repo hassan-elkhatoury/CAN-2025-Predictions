@@ -35,7 +35,7 @@ export default function BracketPage() {
     // Round of 16
     const ro16Winners: string[] = []
     for (const match of roundOf16Matches) {
-      const result = predictMatch(match.team1, match.team2)
+      const result = await predictMatch(match.team1, match.team2)
       const winner = result.winner === 'draw' ? match.team1 : result.winner
       const team1 = getTeamById(match.team1)
       const team2 = getTeamById(match.team2)
@@ -64,7 +64,7 @@ export default function BracketPage() {
     for (let i = 0; i < 4; i++) {
       const team1 = ro16Winners[i * 2]
       const team2 = ro16Winners[i * 2 + 1]
-      const result = predictMatch(team1, team2)
+      const result = await predictMatch(team1, team2)
       const winner = result.winner === 'draw' ? team1 : result.winner
       const t1 = getTeamById(team1)
       const t2 = getTeamById(team2)
@@ -93,7 +93,7 @@ export default function BracketPage() {
     for (let i = 0; i < 2; i++) {
       const team1 = qfWinners[i * 2]
       const team2 = qfWinners[i * 2 + 1]
-      const result = predictMatch(team1, team2)
+      const result = await predictMatch(team1, team2)
       const winner = result.winner === 'draw' ? team1 : result.winner
       const t1 = getTeamById(team1)
       const t2 = getTeamById(team2)
@@ -120,7 +120,7 @@ export default function BracketPage() {
     // Final
     const team1 = sfWinners[0]
     const team2 = sfWinners[1]
-    const result = predictMatch(team1, team2)
+    const result = await predictMatch(team1, team2)
     const winner = result.winner === 'draw' ? team1 : result.winner
     
     allPredictions.push({

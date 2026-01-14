@@ -58,7 +58,7 @@ export default function MatchPage() {
     
     await new Promise(r => setTimeout(r, 800))
     
-    const result = predictMatch(team1.id, team2.id)
+    const result = await predictMatch(team1.id, team2.id)
     setPrediction(result)
     setIsPredicting(false)
   }

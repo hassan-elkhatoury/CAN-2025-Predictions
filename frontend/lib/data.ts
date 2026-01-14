@@ -281,14 +281,14 @@ export function getTopTeams(count: number = 5): Team[] {
   return [...teams].sort((a, b) => b.championProb - a.championProb).slice(0, count)
 }
 
-// Simulate match prediction with more realistic probabilities
-export function predictMatch(team1Id: string, team2Id: string): {
+// Asynchronous match prediction calling the Python API
+export async function predictMatch(team1Id: string, team2Id: string): Promise<{
   winner: string | 'draw'
   team1WinProb: number
   drawProb: number
   team2WinProb: number
   confidence: number
-} {
+}> {
   const team1 = getTeamById(team1Id)
   const team2 = getTeamById(team2Id)
   
@@ -296,41 +296,78 @@ export function predictMatch(team1Id: string, team2Id: string): {
     return { winner: 'draw', team1WinProb: 33, drawProb: 34, team2WinProb: 33, confidence: 0 }
   }
 
-  // More sophisticated probability calculation
-  const rankDiff = team2.fifaRank - team1.fifaRank
-  const probDiff = team1.championProb - team2.championProb
-  
-  // Base probabilities influenced by ranking and championship odds
-  let team1Base = 0.5 + (rankDiff / 200) + (probDiff / 100)
-  team1Base = Math.max(0.2, Math.min(0.8, team1Base))
-  
-  // Draw probability varies based on how close teams are
-  const closeness = 1 - Math.abs(team1Base - 0.5)
-  const drawProb = 15 + closeness * 15
-  
-  const remaining = 100 - drawProb
-  const team1WinProb = Math.round(team1Base * remaining * 10) / 10
-  const team2WinProb = Math.round((remaining - team1WinProb) * 10) / 10
+  try {
+    const response = await fetch('http://127.0.0.1:8000/predict', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        team1: team1.nameFr, // Send French names as expected by Python script
+        team2: team2.nameFr
+      }),
+    })
 
-  // Determine winner with some randomness for simulation
-  const rand = Math.random() * 100
-  let winner: string | 'draw'
-  if (rand < team1WinProb) {
-    winner = team1Id
-  } else if (rand < team1WinProb + drawProb) {
-    winner = 'draw'
-  } else {
-    winner = team2Id
-  }
+    if (!response.ok) {
+      throw new Error(`API call failed: ${response.statusText}`)
+    }
 
-  const confidence = Math.abs(team1WinProb - team2WinProb)
+    const data = await response.json()
+    
+    // Map the returned winner name back to ID
+    let winnerId: string | 'draw' = 'draw'
+    if (data.winner === team1.nameFr) winnerId = team1.id
+    else if (data.winner === team2.nameFr) winnerId = team2.id
+    else if (data.winner === 'draw') winnerId = 'draw'
+    else {
+        // Fallback: try to find team by matching nameFr
+        const wTeam = teams.find(t => t.nameFr === data.winner)
+        winnerId = wTeam ? wTeam.id : 'draw'
+    }
 
-  return {
-    winner,
-    team1WinProb,
-    drawProb: Math.round(drawProb * 10) / 10,
-    team2WinProb,
-    confidence
+    return {
+      winner: winnerId,
+      team1WinProb: data.team1WinProb,
+      drawProb: data.drawProb,
+      team2WinProb: data.team2WinProb,
+      confidence: data.confidence
+    }
+
+  } catch (error) {
+    console.warn("API unavailable, falling back to static simulation.", error)
+    // Fallback logic (original static logic) for resilience if API is off
+    const rankDiff = team2.fifaRank - team1.fifaRank
+    const probDiff = team1.championProb - team2.championProb
+    
+    let team1Base = 0.5 + (rankDiff / 200) + (probDiff / 100)
+    team1Base = Math.max(0.2, Math.min(0.8, team1Base))
+    
+    const closeness = 1 - Math.abs(team1Base - 0.5)
+    let drawProb = 15 + closeness * 15
+    
+    const remaining = 100 - drawProb
+    let team1WinProb = Math.round(team1Base * remaining * 10) / 10
+    let team2WinProb = Math.round((remaining - team1WinProb) * 10) / 10
+
+    const rand = Math.random() * 100
+    let winner: string | 'draw'
+    if (rand < team1WinProb) {
+      winner = team1Id
+    } else if (rand < team1WinProb + drawProb) {
+      winner = 'draw'
+    } else {
+      winner = team2Id
+    }
+
+    const confidence = Math.abs(team1WinProb - team2WinProb)
+
+    return {
+      winner,
+      team1WinProb,
+      drawProb: Math.round(drawProb * 10) / 10,
+      team2WinProb,
+      confidence
+    }
   }
 }
 
